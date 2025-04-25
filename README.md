@@ -6,12 +6,13 @@ A Ruby command-line application to search clients by name and identify duplicate
 
 ### Prerequisites
 - Ruby 2.7+ installed
+- Docker installed (for containerized execution)
 - Internet connection (to fetch client data from the remote URL)
 
 ### Installation
 1. Clone or download this project.
 2. Download the `clients.json` file from [appassets02.shiftcare.com/manual/clients.json](appassets02.shiftcare.com/manual/clients.json) and place it in the project root.
-3. Install RSpec and Webmock for testing (optional):
+3. Install RSpec and Webmock for testing (optional, if running locally):
    ```bash
    gem install rspec
    gem install rspec webmock
@@ -19,31 +20,53 @@ A Ruby command-line application to search clients by name and identify duplicate
 
 ### Usage
 
-Run the application with:
-
-```bash
-ruby app.rb <command> [arguments]
-```
-
-#### Commands
-
-- **Search**: Find clients with names matching a query (case-insensitive, partial matches).
+  - ### Running Loacally
 
     ```bash
-    ruby app.rb search <query>
+    ruby app.rb <command> [arguments]
     ```
-    Example: ruby app.rb search ali
 
-- **Duplicates**: List clients with duplicate email addresses.
+    #### Commands
 
-    ```bash
-    ruby app.rb duplicates
-    ```
+    - **Search**: Find clients with names matching a query (case-insensitive, partial matches).
+
+        ```bash
+        ruby app.rb search <query>
+        ```
+        Example: ruby app.rb search ali
+
+    - **Duplicates**: List clients with duplicate email addresses.
+
+        ```bash
+        ruby app.rb duplicates
+        ```
+
+  - ### Running with Docker
+
+    1. Build the Docker image:
+
+          ```bash
+          docker build -t shiftcare-challenge .
+          ```
+    2. Run the application:
+          ```bash
+          docker run --rm shiftcare-challenge <command> [arguments]
+          ```
+       Examples:
+        - Search: `docker run --rm shiftcare-challenge search ali`
+        - Duplicates: `docker run --rm shiftcare-challenge duplicates`
 
 #### Running the Tests
 - Tests cover happy paths, edge cases and negative scenarios. You can run tests using:
+  - Locally:
+
     ```bash
     rspec
+    ```
+  - With Docker:
+
+    ```bash
+    docker run --rm shiftcare-challenge rspec
     ```
 
 ### Assumptions and Decisions
@@ -54,6 +77,7 @@ ruby app.rb <command> [arguments]
   - Missing names are excluded from search results.
   - Missing emails are not considered duplicates.
 - The entire dataset is loaded into memory, assuming it’s not excessively large.
+- Dockerized setup simplifies deployment and ensures consistent environments.
 
 ### Known Limitations
 
