@@ -23,6 +23,7 @@ class Search
     { results: results }
   end
 
+  private
   # Dynamically define search methods for common fields
   def define_search_methods
     fields = @repository.string_fields
