@@ -1,4 +1,3 @@
-# app.rb
 require_relative 'lib/client_repository'
 require_relative 'lib/search'
 require_relative 'lib/duplicate_finder'
@@ -28,7 +27,11 @@ when 'search'
     puts "No clients found matching '#{query}'."
   else
     puts "Clients matching '#{query}':"
-    results.each { |client| puts "- #{client['full_name']} (#{client['email']})" }
+    puts format("%-5s %-25s %-30s", "ID", "Name", "Email")
+    puts "-" * 65
+    results.each do |client|
+      puts format("%-5s %-25s %-30s", client['id'], client['full_name'], client['email'])
+    end
   end
 
 when 'duplicates'
@@ -40,7 +43,10 @@ when 'duplicates'
     puts "Duplicate emails found:"
     duplicates.each do |email, group|
       puts "Email: #{email}"
-      group.each { |client| puts "- #{client['full_name']}" }
+      puts
+      puts format("%-5s %-25s", "ID", "Name")
+      puts "-" * 35
+      group.each { |client| puts format("%-5s %-25s", client['id'], client['full_name']) }
       puts
     end
   end
