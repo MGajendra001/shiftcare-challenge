@@ -6,13 +6,15 @@ A Ruby command-line application to search clients by name and identify duplicate
 
 ### Prerequisites
 - Ruby 2.7+ installed
+- Internet connection (to fetch client data from the remote URL)
 
 ### Installation
 1. Clone or download this project.
 2. Download the `clients.json` file from [appassets02.shiftcare.com/manual/clients.json](appassets02.shiftcare.com/manual/clients.json) and place it in the project root.
-3. Install RSpec for testing (optional):
+3. Install RSpec and Webmock for testing (optional):
    ```bash
    gem install rspec
+   gem install rspec webmock
    ```
 
 ### Usage
@@ -46,7 +48,7 @@ ruby app.rb <command> [arguments]
 
 ### Assumptions and Decisions
 
-- The JSON file is named `clients.json` and located in the project root.
+- Client data is fetched from https://appassets02.shiftcare.com/manual/clients.json at runtime.
 - Search is case-insensitive and matches partial strings in the `full_name` field.
 - Clients missing `full_name` or `email` fields are handled gracefully:
   - Missing names are excluded from search results.
@@ -55,14 +57,14 @@ ruby app.rb <command> [arguments]
 
 ### Known Limitations
 
-- File path is hardcoded to `clients.json`. Could be made configurable.
+- Network dependency: Requires internet access to fetch data.
 - Search is limited to the `full_name` field.
 - No pagination; all results are displayed.
 - Memory usage may be an issue with very large datasets.
 
 ### Future Improvements
 
-- **Configurable JSON File**: Allow specifying the file path via a command-line argument.
+- **Configurable Data Source**: Allow specifying a custom URL or local file via a command-line argument.
 - **Dynamic Search**: Extend search to other fields (e.g., `ruby app.rb search email hello@example.com`).
 - **REST API**: Extract logic into a library and serve via Sinatra/Rails (e.g., `GET /query?q=hello`).
 - **Scalability**: Use a database or stream JSON for large datasets.

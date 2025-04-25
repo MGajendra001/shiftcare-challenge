@@ -11,7 +11,7 @@ if ARGV.empty?
 end
 
 command = ARGV[0]
-repository = ClientRepository.new('clients.json')
+repository = ClientRepository.new
 clients = repository.all
 
 case command
