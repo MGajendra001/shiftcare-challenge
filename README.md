@@ -5,14 +5,13 @@ A Ruby command-line application to search clients by name and identify duplicate
 ## Setup
 
 ### Prerequisites
-- Ruby 2.7+ installed
+- Ruby 2.7+ installed ( if running locally)
 - Docker installed (for containerized execution)
 - Internet connection (to fetch client data from the remote URL)
 
 ### Installation
 1. Clone or download this project.
-2. Download the `clients.json` file from [appassets02.shiftcare.com/manual/clients.json](appassets02.shiftcare.com/manual/clients.json) and place it in the project root.
-3. Install RSpec and Webmock for testing (optional, if running locally):
+2. Install RSpec and Webmock for testing (optional, if running locally):
    ```bash
    gem install rspec
    gem install rspec webmock
