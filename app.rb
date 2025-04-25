@@ -1,52 +1,84 @@
 require_relative 'lib/client_repository'
 require_relative 'lib/search'
 require_relative 'lib/duplicate_finder'
+require 'optparse'
 
-if ARGV.empty?
-  puts "Usage: ruby app.rb <command> [arguments]"
-  puts "Commands:"
-  puts "  search <query> - Search clients by name"
-  puts "  duplicates     - Find clients with duplicate emails"
+options = {}
+OptionParser.new do |opts|
+  opts.banner = "Usage: ruby app.rb [options] <command> [arguments]\n" \
+                "Commands:\n" \
+                "  search <field> <query> - Search clients by field (e.g., full_name, email)\n" \
+                "  duplicates - <field>      Find duplicates by field (e.g., full_name, email)\n"
+
+  opts.on('--source SOURCE', 'Specify JSON data source (file or URL)') do |source|
+    options[:source] = source
+  end
+end.parse!
+
+data_source = options[:source] || 'https://appassets02.shiftcare.com/manual/clients.json'
+command = ARGV[0]
+
+unless command
+  puts "Error: No command provided."
+  puts "Usage: ruby app.rb [options] <command> [arguments]"
   exit(1)
 end
 
-command = ARGV[0]
-repository = ClientRepository.new
+repository = ClientRepository.new(data_source)
 clients = repository.all
+search = Search.new(repository)
+duplicate_finder = DuplicateFinder.new(repository)
+
+def humanize(str)
+  str.to_s.gsub('_', ' ').capitalize
+end
 
 case command
 when 'search'
-  if ARGV.size < 2
-    puts "Error: Search query is required."
+  if ARGV.size < 3
+    puts "Error: Search requires a field and query (e.g., search full_name ali)."
     exit(1)
   end
-  query = ARGV[1]
-  results = Search.by_name(clients, query)
+  field = ARGV[1]
+  query = ARGV[2]
+  result = Search.by_field(clients, field, query)
 
-  if results.empty?
-    puts "No clients found matching '#{query}'."
+  if result[:error]
+    puts result[:error]
+  elsif result[:results].empty?
+    puts "No clients found matching '#{query}' in field '#{humanize(field)}'."
   else
-    puts "Clients matching '#{query}':"
-    puts format("%-5s %-25s %-30s", "ID", "Name", "Email")
+    puts "Clients matching '#{query}' in field '#{field}':"
+    puts format("%-5s %-25s %-30s", "ID", "Full Name", "Email")
     puts "-" * 65
-    results.each do |client|
+    result[:results].each do |client|
       puts format("%-5s %-25s %-30s", client['id'], client['full_name'], client['email'])
     end
   end
 
 when 'duplicates'
-  duplicates = DuplicateFinder.find_by_email(clients)
+  if ARGV.size < 2
+    puts "Error: Duplicates requires a field (e.g., duplicates email)."
+    exit(1)
+  end
+  field = ARGV[1]
+  begin
+    duplicates = DuplicateFinder.find_by_field(clients, field)
+  rescue ArgumentError => e
+    puts "Error: #{e.message}"
+    exit(1)
+  end
 
   if duplicates.empty?
-    puts "No duplicate emails found."
+    puts "No duplicate #{humanize(field)}s found."
   else
-    puts "Duplicate emails found:"
-    duplicates.each do |email, group|
-      puts "Email: #{email}"
+    puts "Duplicate #{humanize(field)}s found:"
+    duplicates.each do |field_value, group|
+      puts "#{humanize(field)}: #{field_value}"
       puts
-      puts format("%-5s %-25s", "ID", "Name")
-      puts "-" * 35
-      group.each { |client| puts format("%-5s %-25s", client['id'], client['full_name']) }
+      puts format("%-5s %-25s %-30s", "ID", "Full Name", "Email")
+      puts "-" * 65
+      group.each { |client| puts format("%-5s %-25s %-30s", client['id'], client['full_name'], client['email']) }
       puts
     end
   end
