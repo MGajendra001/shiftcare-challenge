@@ -22,7 +22,7 @@ A Ruby command-line application to search clients by name and identify duplicate
   - ### Running Loacally
 
     ```bash
-    ruby app.rb <command> [arguments]
+    ruby app.rb [options] <command> [arguments]
     ```
 
     #### Options
@@ -43,6 +43,8 @@ A Ruby command-line application to search clients by name and identify duplicate
         ```bash
         ruby app.rb duplicates <field>
         ```
+        Example:
+         - `ruby app.rb duplicates email`
 
   - ### Running with Docker
 
